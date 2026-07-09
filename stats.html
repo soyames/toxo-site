@@ -111,6 +111,7 @@
     <section id="sec-city"></section>
     <section id="sec-consumer"></section>
     <section id="sec-merchant"></section>
+    <section id="sec-municipality"></section>
   </div>
 </div>
 <div id="tooltip" role="status"></div>
@@ -139,6 +140,14 @@
     "revendus-lendemain": "Revendus le lendemain", donnes: "Donnés", "soldes-fin-journee": "Soldés fin de journée",
     jetes: "Jetés", "oui-si-simple": "Oui, si simple", "non-je-revends": "Non, je revends demain",
     bientot: "Bientôt",
+    mairie: "Mairie / commune", "agence-urbaine": "Agence urbaine", arrondissement: "Arrondissement",
+    "autre-collectivite": "Autre collectivité",
+    "telephone-whatsapp": "Téléphone / WhatsApp", "bureau-accueil": "Bureau d'accueil",
+    "formulaire-dedie": "Formulaire dédié", "peu-structure": "Peu structuré",
+    "oui-tableau-de-bord": "Oui, avec tableau de bord", "oui-complement": "Oui, en complément",
+    dechets: "Déchets et salubrité", inondations: "Inondations et drainage",
+    voirie: "Voirie et infrastructures", marches: "Marchés et commerces",
+    "oui-actif": "Oui, activement",
   };
 
   // Answer order mirrors each question's scale (ordinal where the question is).
@@ -155,9 +164,15 @@
     surplus_handling: { title: "Devenir des invendus aujourd'hui", order: ["revendus-lendemain", "donnes", "soldes-fin-journee", "jetes"] },
     bag_supply_interest: { title: "Vendrait ses invendus à ~1/3 du prix", order: ["oui", "oui-si-simple", "non-je-revends", "non"] },
     momo_accepted: { title: "Accepte le Mobile Money", order: ["oui", "bientot", "non"] },
+    authority_type: { title: "Type de collectivité", order: null },
+    report_channel: { title: "Canal actuel de signalement citoyen", order: ["telephone-whatsapp", "bureau-accueil", "formulaire-dedie", "peu-structure"] },
+    civic_platform_interest: { title: "Intérêt pour une plateforme de signalement", order: ["oui-tableau-de-bord", "oui-complement", "peut-etre", "non"] },
+    priority_issue: { title: "Priorité territoriale n°1", order: ["dechets", "inondations", "voirie", "marches"] },
+    food_waste_support: { title: "Soutien à la lutte contre le gaspillage alimentaire", order: ["oui-actif", "oui-si-simple", "peut-etre", "non"] },
   };
   const CONSUMER_FIELDS = ["buy_frequency", "bag_interest", "momo_usage", "unused_items_channel", "classifieds_pain", "civic_interest"];
   const MERCHANT_FIELDS = ["business_type", "surplus_frequency", "surplus_handling", "bag_supply_interest", "momo_accepted"];
+  const MUNICIPALITY_FIELDS = ["authority_type", "report_channel", "civic_platform_interest", "priority_issue", "food_waste_support"];
 
   const tooltip = document.getElementById("tooltip");
   function attachTooltip(el, text) {
@@ -288,6 +303,7 @@
         ["Réponses au total", stats.total],
         ["Consommateurs", stats.consumers],
         ["Commerçants", stats.merchants],
+        ["Collectivités", stats.municipalities || 0],
       ]) {
         const tile = document.createElement("div");
         tile.className = "tile";
@@ -299,6 +315,15 @@
       renderSection("sec-city", "Origine", "Tous les répondants", ["city"], stats, stats.total);
       renderSection("sec-consumer", "Consommateurs", `${stats.consumers} répondant${stats.consumers > 1 ? "s" : ""}`, CONSUMER_FIELDS, stats, stats.consumers);
       renderSection("sec-merchant", "Commerçants", `${stats.merchants} répondant${stats.merchants > 1 ? "s" : ""}`, MERCHANT_FIELDS, stats, stats.merchants);
+      const municipalities = stats.municipalities || 0;
+      renderSection(
+        "sec-municipality",
+        "Collectivités locales",
+        `${municipalities} répondant${municipalities > 1 ? "s" : ""}`,
+        MUNICIPALITY_FIELDS,
+        stats,
+        municipalities
+      );
     } catch (error) {
       state.textContent = "Impossible de charger les résultats (" + error.message + "). L'API est peut-être en cours de démarrage - rechargez dans une minute.";
     }

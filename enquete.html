@@ -94,7 +94,7 @@
 <div class="wrap">
   <div class="intro" id="intro">
     <h1>Votre avis construit Tôxô 🇧🇯</h1>
-    <p>7 questions, moins de 2 minutes, aucune donnée personnelle. Vos réponses nous aident à créer une application vraiment utile pour le Bénin.</p>
+    <p>Habitant, commerçant ou collectivité locale : 7 questions, moins de 2 minutes, aucune donnée personnelle. Vos réponses nous aident à créer une application vraiment utile pour le Bénin.</p>
     <span class="pill">100 % anonyme</span>
   </div>
 
@@ -106,11 +106,12 @@
       <div class="opts">
         <label class="opt"><input type="radio" name="respondent_type" value="consommateur"> Un habitant / consommateur</label>
         <label class="opt"><input type="radio" name="respondent_type" value="commercant"> Un commerçant, restaurateur ou hôtelier</label>
+        <label class="opt"><input type="radio" name="respondent_type" value="collectivite"> Une mairie, commune ou autorité locale</label>
       </div>
     </div>
 
     <div class="q" data-field="city">
-      <h2><span class="num">2.</span> Dans quelle ville êtes-vous ?</h2>
+      <h2><span class="num">2.</span> <span id="city-label">Dans quelle ville êtes-vous ?</span></h2>
       <select name="city">
         <option value="">Choisissez votre ville...</option>
         <option value="cotonou">Cotonou</option>
@@ -245,6 +246,59 @@
       </div>
     </div>
 
+    <!-- Municipality track -->
+    <div class="track" id="track-municipality">
+      <div class="q" data-field="authority_type">
+        <h2><span class="num">3.</span> Quel type de structure représentez-vous ?</h2>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="authority_type" value="mairie"> Mairie / commune</label>
+          <label class="opt"><input type="radio" name="authority_type" value="agence-urbaine"> Agence urbaine ou service spécialisé</label>
+          <label class="opt"><input type="radio" name="authority_type" value="arrondissement"> Arrondissement / district municipal</label>
+          <label class="opt"><input type="radio" name="authority_type" value="autre-collectivite"> Autre collectivité ou service public local</label>
+        </div>
+      </div>
+
+      <div class="q" data-field="report_channel">
+        <h2><span class="num">4.</span> Comment les citoyens signalent-ils aujourd'hui les problèmes de votre territoire (déchets, inondations, voirie...) ?</h2>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="report_channel" value="telephone-whatsapp"> Téléphone ou WhatsApp informel</label>
+          <label class="opt"><input type="radio" name="report_channel" value="bureau-accueil"> Bureau d'accueil / permanence</label>
+          <label class="opt"><input type="radio" name="report_channel" value="formulaire-dedie"> Formulaire ou ligne dédiée</label>
+          <label class="opt"><input type="radio" name="report_channel" value="peu-structure"> Peu ou pas de signalement structuré</label>
+        </div>
+      </div>
+
+      <div class="q" data-field="civic_platform_interest">
+        <h2><span class="num">5.</span> Seriez-vous intéressé(e) par une application qui centralise les signalements citoyens avec photo et suivi ?</h2>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="civic_platform_interest" value="oui-tableau-de-bord"> Oui, si un tableau de bord est fourni à la collectivité</label>
+          <label class="opt"><input type="radio" name="civic_platform_interest" value="oui-complement"> Oui, en complément de nos outils actuels</label>
+          <label class="opt"><input type="radio" name="civic_platform_interest" value="peut-etre"> Peut-être, selon les garanties (données, modération)</label>
+          <label class="opt"><input type="radio" name="civic_platform_interest" value="non"> Non</label>
+        </div>
+      </div>
+
+      <div class="q" data-field="priority_issue">
+        <h2><span class="num">6.</span> Quel problème de votre territoire a le plus besoin de remontées citoyennes en temps réel ?</h2>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="priority_issue" value="dechets"> Déchets et salubrité</label>
+          <label class="opt"><input type="radio" name="priority_issue" value="inondations"> Inondations et drainage</label>
+          <label class="opt"><input type="radio" name="priority_issue" value="voirie"> Voirie et infrastructures</label>
+          <label class="opt"><input type="radio" name="priority_issue" value="marches"> Marchés et commerces de proximité</label>
+        </div>
+      </div>
+
+      <div class="q" data-field="food_waste_support">
+        <h2><span class="num">7.</span> Soutiendriez-vous une initiative locale contre le gaspillage alimentaire (paniers surprise, dons) sur votre territoire ?</h2>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="food_waste_support" value="oui-actif"> Oui, activement (communication, mise en relation)</label>
+          <label class="opt"><input type="radio" name="food_waste_support" value="oui-si-simple"> Oui, si c'est simple et sans charge administrative</label>
+          <label class="opt"><input type="radio" name="food_waste_support" value="peut-etre"> Peut-être, à étudier</label>
+          <label class="opt"><input type="radio" name="food_waste_support" value="non"> Non</label>
+        </div>
+      </div>
+    </div>
+
     <div class="actions">
       <button type="submit" id="submit-btn">Envoyer mes réponses</button>
       <div class="msg error" id="error-msg"></div>
@@ -269,16 +323,27 @@
   const tracks = {
     consommateur: document.getElementById("track-consumer"),
     commercant: document.getElementById("track-merchant"),
+    collectivite: document.getElementById("track-municipality"),
   };
   const FIELDS = {
     consommateur: ["buy_frequency", "bag_interest", "momo_usage", "unused_items_channel", "classifieds_pain", "civic_interest"],
     commercant: ["business_type", "surplus_frequency", "surplus_handling", "bag_supply_interest", "momo_accepted"],
+    collectivite: ["authority_type", "report_channel", "civic_platform_interest", "priority_issue", "food_waste_support"],
   };
+  const cityLabel = document.getElementById("city-label");
+
+  function updateTrack(type) {
+    for (const [key, el] of Object.entries(tracks)) {
+      el.classList.toggle("visible", key === type);
+    }
+    cityLabel.textContent = type === "collectivite"
+      ? "Quel territoire représentez-vous ?"
+      : "Dans quelle ville êtes-vous ?";
+  }
 
   form.respondent_type.forEach((radio) =>
     radio.addEventListener("change", () => {
-      tracks.consommateur.classList.toggle("visible", radio.value === "consommateur" && radio.checked);
-      tracks.commercant.classList.toggle("visible", radio.value === "commercant" && radio.checked);
+      if (radio.checked) updateTrack(radio.value);
     })
   );
 
