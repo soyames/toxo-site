@@ -315,9 +315,8 @@
 </div>
 
 <script>
-  // Switch to https://api.toxo.soyames.com once the custom domain is added in Render.
   // ?api=http://127.0.0.1:8000 overrides the target for local testing.
-  const API_BASE = new URLSearchParams(location.search).get("api") || "https://toxo-api.onrender.com";
+  const API_BASE = new URLSearchParams(location.search).get("api") || "https://api.toxo.soyames.com";
 
   const form = document.getElementById("survey");
   const tracks = {
